@@ -1,20 +1,56 @@
-import pool from "../config/db.js";
 import { validationResult } from "express-validator";
+import pool from "../config/db.js";
+import calculateDistance from "../utils/distanceCalculator.js";
 
 const getAllSchools = async (req, res) => {
-  try {
-    const [rows] = await pool.query("SELECT * FROM schools");
+  const { latitude, longitude } = req.query;
 
-    if (rows.length === 0) {
+  if (!latitude || !longitude) {
+    return res
+      .status(400)
+      .json({ error: "Latitude and longitude are required" });
+  }
+
+  try {
+    const [schools] = await pool.query("SELECT * FROM schools");
+
+    if (schools.length === 0) {
       return res.status(404).json({ message: "no schools found" });
     }
 
-    res.status(200).json(rows);
+    const sortedSchools = schools
+      .map((school) => ({
+        ...school,
+        distance: calculateDistance(
+          latitude,
+          longitude,
+          school.latitude,
+          school.longitude
+        ),
+      }))
+      .sort((a, b) => a.distance - b.distance);
+
+    res.status(200).json(sortedSchools);
   } catch (error) {
     console.error("Error while fetching schools", error);
     res.status(500).json({ error: "Database Error", message: error.message });
   }
 };
+
+// const getAllSchools = async (req, res) => {
+//   try {
+//     const [rows] = await pool.query("SELECT * FROM schools");
+
+//     if (rows.length === 0) {
+//       return res.status(404).json({ message: "no schools found" });
+//     }
+
+//     res.status(200).json(rows);
+//   } catch (error) {
+//     console.error("Error while fetching schools", error);
+//     res.status(500).json({ error: "Database Error", message: error.message });
+//   }
+// };
 
 const createSchool = async (req, res) => {
   const errors = validationResult(req);
