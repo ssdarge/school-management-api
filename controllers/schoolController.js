@@ -18,7 +18,7 @@ const getAllSchools = async (req, res) => {
 
 const createSchool = async (req, res) => {
   const errors = validationResult(req);
-  if (!error.isEmpty()) {
+  if (!errors.isEmpty()) {
     return res.status(400).json({ error: errors.array() });
   }
 
