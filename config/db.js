@@ -1,10 +1,6 @@
 import "dotenv/config";
 import mysql from "mysql2/promise";
 
-const sslCaCert = process.env.SSL_CA_CERT
-  ? process.env.SSL_CA_CERT.replace(/\\n/g, "\n")
-  : null;
-
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -14,8 +10,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: sslCaCert ? { ca: sslCaCert, rejectUnauthorized: true } : undefined,
 });
 
-console.log("MySQL connection pool created successfully");
+console.log("MySQL connection pool created successfully with SSL");
 export default pool;
