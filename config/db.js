@@ -17,5 +17,5 @@ const pool = mysql.createPool({
   ssl: sslCaCert ? { ca: sslCaCert, rejectUnauthorized: true } : undefined,
 });
 
-console.log("✅ MySQL connection pool created successfully");
+console.log("MySQL connection pool created successfully");
 export default pool;
